@@ -1,5 +1,4 @@
 from fractions import Fraction
-from scipy import linalg
 
 
 def print_solution(x, y):
