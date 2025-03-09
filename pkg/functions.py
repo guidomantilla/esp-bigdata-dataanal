@@ -43,20 +43,72 @@ def print_analysis_not_square(rankA, rankAB):
         print("The system has no solution.")
 
 
-def print_solution_inequality(label, x, y, expression, relation, result, above=True):
-    equation = sp.Rel(expression, result, relation)
-    solX, solY = sp.solveset(equation, x, domain=sp.S.Reals), sp.solveset(
-        equation, y, domain=sp.S.Reals
-    )
-    printSolTitle = "Solución de la desigualdad: "
-    printSolX = "$${} = {}$$".format(latex(x), latex(solX.doit()))
-    printSolY = "$${} = {}$$".format(latex(y), latex(solY.doit()))
-    display(Latex(printSolTitle), Latex(printSolX), Latex(printSolY))
+def calculate_solution_equation(x, y, equation):
+    sol_x = sp.solveset(equation, x, domain=sp.S.Reals)
+    sol_y = sp.solveset(equation, y, domain=sp.S.Reals)
+    return sol_x, sol_y
 
-    lineY = sp.Eq(expression, result)
-    solY = sp.solve(lineY, y, domain=sp.S.Reals)[0]
+
+def print_solution_equation(x, y, equation, sol_x, sol_y):
+    print_sol_title = f"Solución de la desigualdad: {equation.doit()}"
+    print_sol_x = "$${} = {}$$".format(latex(x), latex(sol_x.doit()))
+    print_sol_y = "$${} = {}$$".format(latex(y), latex(sol_y.doit()))
+    display(Latex(print_sol_title), Latex(print_sol_x), Latex(print_sol_y))
+
+
+def plot_solution_equation(x, y, equation):
+    return plot_solution_equations(x, y, [equation])
+
+
+def plot_solution_equations(x, y, equations):
+
+    lines = []
+    lim, x_var, y_var = (-10, 10), (x, -10, 10), (y, -10, 10)
+    for equation in equations:
+        sol_y = sp.solve(equation, y, domain=sp.S.Reals)
+        print(sol_y, sol_y.free_symbols)
+        if x in sol_y.free_symbols and y in sol_y.free_symbols:
+            lines.append(sol_y.rhs)
+            continue
+
+        if x in sol_y.free_symbols and y not in sol_y.free_symbols:
+            lines.append(sol_y.rhs)
+            continue
+
+        if y in sol_y.free_symbols:
+            lines.append(sol_y.lhs)
+            continue
+
+    print(lines)
+    plot_lines = sp.plot(
+        *lines,
+        x_var,
+        ylim=lim,
+        show=False,
+    )
+
+    system_equation = sp.And(*equations)
+    plot = sp.plot_implicit(
+        system_equation,
+        x_var,
+        y_var,
+        title=f"Región factible para {system_equation.doit()}",
+        line_color="red",
+        show=False,
+        legend="true",
+    )
+
+    for idx, line in enumerate(lines):
+        plot.append(plot_lines[idx])
+
+    return plot
+
+
+"""
+    line_y = sp.Eq(right_expression, left_expression)
+    sol_y = sp.solve(line_y, y, domain=sp.S.Reals)[0]
     x_vals = np.linspace(-10, 10, 50)
-    y_vals = [float(solY.subs(x, val)) for val in x_vals]
+    y_vals = [float(sol_y.subs(x, val)) for val in x_vals]
 
     plt.plot(x_vals, y_vals, "r", label=label)
     if above:
@@ -71,3 +123,4 @@ def print_solution_inequality(label, x, y, expression, relation, result, above=T
     plt.title(f"Región factible para {label}")
     plt.grid()
     plt.show()
+"""
