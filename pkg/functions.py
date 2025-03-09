@@ -61,32 +61,7 @@ def plot_solution_equation(x, y, equation):
 
 
 def plot_solution_equations(x, y, equations):
-
-    lines = []
     lim, x_var, y_var = (-10, 10), (x, -10, 10), (y, -10, 10)
-    for equation in equations:
-        sol_y = sp.solve(equation, y, domain=sp.S.Reals)
-        print(sol_y, sol_y.free_symbols)
-        if x in sol_y.free_symbols and y in sol_y.free_symbols:
-            lines.append(sol_y.rhs)
-            continue
-
-        if x in sol_y.free_symbols and y not in sol_y.free_symbols:
-            lines.append(sol_y.rhs)
-            continue
-
-        if y in sol_y.free_symbols:
-            lines.append(sol_y.lhs)
-            continue
-
-    print(lines)
-    plot_lines = sp.plot(
-        *lines,
-        x_var,
-        ylim=lim,
-        show=False,
-    )
-
     system_equation = sp.And(*equations)
     plot = sp.plot_implicit(
         system_equation,
@@ -95,11 +70,37 @@ def plot_solution_equations(x, y, equations):
         title=f"Región factible para {system_equation.doit()}",
         line_color="red",
         show=False,
-        legend="true",
+        legend="True",
     )
 
-    for idx, line in enumerate(lines):
-        plot.append(plot_lines[idx])
+    equation_lines = []
+    equation_vertical_lines = []
+    for equation in equations:
+        sol_y = sp.solve(equation, y, domain=sp.S.Reals)
+        if x in sol_y.free_symbols and y in sol_y.free_symbols:
+            equation_lines.append(sol_y.rhs)
+            continue
+
+        if y in sol_y.free_symbols:
+            equation_lines.append(sol_y.lhs)
+            continue
+
+        if x in sol_y.free_symbols and y not in sol_y.free_symbols:
+            equation_vertical_lines.append(sp.Eq(sol_y.lhs, sol_y.rhs))
+            continue
+
+    for idx, line in enumerate(equation_lines):
+        line_plot = sp.plot(
+            line,
+            x_var,
+            ylim=lim,
+            show=False,
+        )
+        plot.append(line_plot[0])
+
+    for idx, line in enumerate(equation_vertical_lines):
+        vertical_plot = sp.plot_implicit(line, x_var, y_var, show=False)
+        plot.append(vertical_plot[0])
 
     return plot
 
