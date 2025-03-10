@@ -1,8 +1,6 @@
-import numpy as np
 import sympy as sp
 from fractions import Fraction
 
-from matplotlib import pyplot as plt
 from sympy import latex
 from IPython.display import display, Latex
 
