@@ -1,7 +1,43 @@
 import pandas as pd
 import numpy as np
+import math
+
+
+def calcular_BMI(peso_lb: float, altura_inch: float):
+    peso_kg = peso_lb * 0.45
+    altura_mts = altura_inch * 0.025
+    return round(peso_kg / math.pow(altura_mts,2),2)
+
+def calcular_cambio(cambio: int):
+    denominaciones = [500, 200, 100, 50]
+    resultado = []
+    for d in denominaciones:
+        cantidad, cambio = divmod(cambio, d)
+        resultado.append(cantidad)
+    return "{},{},{},{}".format(*resultado)
+
+
+def calcular_horario_llegada(hora_salida: int, minuto_salida: int, segundo_salida: int,
+                             duracion_horas: int, duracion_minutos: int, duracion_segundos: int):
+
+    segundo_llegada = segundo_salida + duracion_segundos
+    minuto_extra, segundo_llegada = divmod(segundo_llegada, 60)
+
+    minuto_llegada = minuto_salida + duracion_minutos + minuto_extra
+    hora_extra, minuto_llegada = divmod(minuto_llegada, 60)
+
+    hora_llegada = (hora_salida + duracion_horas + hora_extra) % 24
+
+    return f"{hora_llegada}:{minuto_llegada}:{segundo_llegada}"
+
 
 if __name__ == "__main__":
+
+    print(calcular_BMI(154,70.86))
+    print(calcular_cambio(100))
+    print(calcular_horario_llegada(6,52,30,0,55,50))
+
+
     print("*****************************")
 
     print(f"Series en Pandas con Index default:")
@@ -44,3 +80,4 @@ if __name__ == "__main__":
         np.random.randn(10), index=pd.date_range("1/1/2000", periods=10)
     )
     print(serie03)
+
