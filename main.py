@@ -2,8 +2,7 @@ import pandas as pd
 import numpy as np
 import math
 
-
-def calcular_BMI(peso_lb: float, altura_inch: float):
+def calcular_bmi(peso_lb: float, altura_inch: float):
     peso_kg = peso_lb * 0.45
     altura_mts = altura_inch * 0.025
     return round(peso_kg / math.pow(altura_mts,2),2)
@@ -16,6 +15,28 @@ def calcular_cambio(cambio: int):
         resultado.append(cantidad)
     return "{},{},{},{}".format(*resultado)
 
+def es_divisible(n: int, d: int)->int:
+    if d == 0:
+        return 0
+    if n % (2 * d) == 0:
+        return "n es divisible por 2d"
+    elif n % d == 0:
+        return "n es divisible por d"
+    else:
+        return "n no es divisible ni por d ni por 2d"
+
+def clasificar_regalo(id: int) -> str:
+    id_str = str(id)
+    es_palindromo,es_par = id_str == id_str[::-1],(id % 2 == 0)
+
+    if es_palindromo and not es_par:
+        return "girl"
+    elif es_palindromo and es_par:
+        return "boy"
+    elif not es_palindromo and es_par:
+        return "man"
+    else:
+        return "woman"
 
 def calcular_horario_llegada(hora_salida: int, minuto_salida: int, segundo_salida: int,
                              duracion_horas: int, duracion_minutos: int, duracion_segundos: int):
@@ -30,10 +51,80 @@ def calcular_horario_llegada(hora_salida: int, minuto_salida: int, segundo_salid
 
     return f"{hora_llegada}:{minuto_llegada}:{segundo_llegada}"
 
+def aplicar_giro(orientacion: str, comando: str):
+    direcciones = ["N", "E", "S", "W"]
+    idx = direcciones.index(orientacion)
+    if comando == "L":
+        return direcciones[(idx - 1) % 4]
+    elif comando == "R":
+        return direcciones[(idx + 1) % 4]
+    elif comando == "H":
+        return direcciones[(idx + 2) % 4]
+    elif comando == ".":
+        return orientacion
+    else:
+        raise ValueError(f"Comando inválido: {comando}")
+
+def movimiento_robot(orientacion_actual: str, giro_1: str, giro_2: str, giro_3: str) -> str:
+    orientacion_actual = aplicar_giro(orientacion_actual, giro_1)
+    orientacion_actual = aplicar_giro(orientacion_actual, giro_2)
+    orientacion_actual = aplicar_giro(orientacion_actual, giro_3)
+
+    return orientacion_actual
+
+def conteo_de_materias(nombre_materia_1: str, nombre_materia_2: str, nombre_materia_3: str) -> int:
+    favoritas = ["programacion", "matematica", "filosofia", "literatura"]
+
+    def es_favorita(nombre: str) -> bool:
+        return any(fav in nombre for fav in favoritas)
+
+    contador = 0
+    for materia in [nombre_materia_1, nombre_materia_2, nombre_materia_3]:
+        if es_favorita(materia):
+            contador += 1
+
+    return contador
+
+
+def picas_y_fijas(numero_secreto: int, intento: int) -> dict:
+    secreto_str = str(numero_secreto)
+    intento_str = str(intento)
+
+    fijas = 0
+    picas = 0
+
+    for i in range(4):
+        if intento_str[i] == secreto_str[i]:
+            fijas += 1
+
+    for i in range(4):
+        if intento_str[i] in secreto_str and intento_str[i] != secreto_str[i]:
+            picas += 1
+
+    return {"PICAS": picas, "FIJAS": fijas}
+
+def mejor_del_salon(estudiante1: dict, estudiante2: dict, estudiante3: dict,
+                    estudiante4: dict, estudiante5: dict) -> str:
+    estudiantes = [estudiante1, estudiante2, estudiante3, estudiante4, estudiante5]
+    mejor_nombre = None
+    mejor_promedio = -1
+
+    for est in estudiantes:
+        promedio = (est["matematicas"] + est["español"] +
+                    est["ciencias"] + est["literatura"] +
+                    est["arte"]) / 5
+
+        if (promedio > mejor_promedio or
+            (promedio == mejor_promedio and est["nombre"].lower() < mejor_nombre.lower())):
+            mejor_promedio = promedio
+            mejor_nombre = est["nombre"]
+
+    return mejor_nombre
+
 
 if __name__ == "__main__":
 
-    print(calcular_BMI(154,70.86))
+    print(calcular_bmi(154,70.86))
     print(calcular_cambio(100))
     print(calcular_horario_llegada(6,52,30,0,55,50))
 
